@@ -20,4 +20,5 @@ from . import views
 
 urlpatterns = [
     path('', views.job_lists, name='job_lists'),
+    path('job/<int:job_id>/', views.job_detail, name='job_detail'),
 ]
