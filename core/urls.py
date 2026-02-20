@@ -21,4 +21,8 @@ from . import views
 urlpatterns = [
     path('', views.job_lists, name='job_lists'),
     path('job/<int:job_id>/', views.job_detail, name='job_detail'),
+    path('job/<int:job_id>/apply/', views.apply_job, name='apply_job'),
+    path('post-job/', views.post_job, name='post_job'),
+    path('profile/<int:user_id>/', views.profile, name='profile'),
+    path('create-profile/', views.create_profile, name='create_profile'),
 ]
