@@ -1,10 +1,14 @@
 from django.shortcuts import render, get_object_or_404, redirect
-from .models import Job, Apply, User
+from django.contrib.auth import authenticate, login, logout
+from django.contrib.auth.decorators import login_required
+from django.contrib.auth.models import User
+from .models import Job, Apply
 from django.db.models import Q
 
 # Create your views here.
 
 
+@login_required
 def job_lists(request):
     query = request.GET.get('q', '')
     if query:
@@ -17,10 +21,12 @@ def job_lists(request):
         job_posts = Job.objects.all()
     return render(request, 'job_lists.html', {'job_posts': job_posts, 'query': query})
 
+@login_required
 def job_detail(request, job_id):
     job = get_object_or_404(Job, id=job_id)
     return render(request, 'job_detail.html', {'job': job})
 
+@login_required
 def apply_job(request, job_id):
     if request.method == 'POST':
         job = get_object_or_404(Job, id=job_id)
@@ -62,3 +68,41 @@ def create_profile(request):
         )
         return redirect('job_lists')
     return render(request, 'create_profile.html')
+
+
+def user_login(request):
+    if request.user.is_authenticated:
+        return redirect('job_lists')
+    
+    if request.method == "POST":
+        username = request.POST['username']
+        password = request.POST['password']
+        user = authenticate(request, username=username, password=password)
+        
+        if user is not None:
+            login(request, user)
+            return redirect('job_lists')
+    
+    return render(request, 'login.html')
+
+
+def register(request):
+
+    if request.method == "POST":
+
+        username = request.POST['username']
+        password = request.POST['password']
+
+        User.objects.create_user(
+            username=username,
+            password=password
+        )
+
+        return redirect('login')
+
+    return render(request, 'register.html')
+
+
+def user_logout(request):
+    logout(request)
+    return redirect('login')

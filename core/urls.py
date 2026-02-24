@@ -19,10 +19,14 @@ from django.urls import path
 from . import views
 
 urlpatterns = [
-    path('', views.job_lists, name='job_lists'),
+    path('', views.user_login, name='login'),
+    path('logout/', views.user_logout, name='logout'),
+    path('home/', views.job_lists, name='job_lists'),
     path('job/<int:job_id>/', views.job_detail, name='job_detail'),
     path('job/<int:job_id>/apply/', views.apply_job, name='apply_job'),
     path('post-job/', views.post_job, name='post_job'),
     path('profile/<int:user_id>/', views.profile, name='profile'),
     path('create-profile/', views.create_profile, name='create_profile'),
+    path('register/', views.register, name='register'),
+
 ]
