@@ -10,16 +10,44 @@ from django.db.models import Q
 
 @login_required
 def job_lists(request):
+    job_posts = Job.objects.all()
+    
+    # Search by job title
     query = request.GET.get('q', '')
     if query:
-        job_posts = Job.objects.filter(
-            Q(title__icontains=query) | 
-            Q(company__icontains=query) | 
-            Q(location__icontains=query)
+        job_posts = job_posts.filter(title__icontains=query)
+    
+    # Filter by company
+    company = request.GET.get('company', '')
+    if company:
+        job_posts = job_posts.filter(company__icontains=company)
+    
+    # Filter by salary (minimum salary)
+    min_salary = request.GET.get('min_salary', '')
+    if min_salary:
+        try:
+            job_posts = job_posts.filter(salary__gte=int(min_salary))
+        except ValueError:
+            pass
+    
+    # Filter by keyword (searches in title, description, location, company)
+    keyword = request.GET.get('keyword', '')
+    if keyword:
+        job_posts = job_posts.filter(
+            Q(title__icontains=keyword) | 
+            Q(description__icontains=keyword) | 
+            Q(location__icontains=keyword) |
+            Q(company__icontains=keyword)
         )
-    else:
-        job_posts = Job.objects.all()
-    return render(request, 'job_lists.html', {'job_posts': job_posts, 'query': query})
+    
+    context = {
+        'job_posts': job_posts,
+        'query': query,
+        'company': company,
+        'min_salary': min_salary,
+        'keyword': keyword
+    }
+    return render(request, 'job_lists.html', context)
 
 @login_required
 def job_detail(request, job_id):
@@ -30,11 +58,11 @@ def job_detail(request, job_id):
 def apply_job(request, job_id):
     if request.method == 'POST':
         job = get_object_or_404(Job, id=job_id)
-        user_id = request.POST.get('user_id')
-        Apply.objects.create(user_id=user_id, job=job)
-        return redirect('job_detail', job_id=job_id)
+        Apply.objects.get_or_create(user=request.user, job=job)
+        return redirect('my_applications')
     return redirect('job_lists')
 
+@login_required
 def post_job(request):
     if request.method == 'POST':
         Job.objects.create(
@@ -43,11 +71,12 @@ def post_job(request):
             company=request.POST['company'],
             location=request.POST['location'],
             salary=request.POST['salary'],
-            create_by_id=request.POST['user_id']
+            create_by=request.user
         )
         return redirect('job_lists')
     return render(request, 'post_job.html')
 
+@login_required
 def profile(request, user_id):
     user = get_object_or_404(User, id=user_id)
     applications = Apply.objects.filter(user=user)
@@ -57,17 +86,6 @@ def profile(request, user_id):
         'applications': applications,
         'posted_jobs': posted_jobs
     })
-
-def create_profile(request):
-    if request.method == 'POST':
-        User.objects.create(
-            name=request.POST['name'],
-            email=request.POST['email'],
-            password=request.POST['password'],
-            city=request.POST['city']
-        )
-        return redirect('job_lists')
-    return render(request, 'create_profile.html')
 
 
 def user_login(request):
@@ -106,3 +124,11 @@ def register(request):
 def user_logout(request):
     logout(request)
     return redirect('login')
+
+@login_required
+def my_applications(request):
+
+    applications = Apply.objects.filter(user=request.user)
+
+    return render(request, 'my_applications.html',
+                  {'applications': applications})

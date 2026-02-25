@@ -5,15 +5,15 @@
 
 {% block content %}
 <!-- Hero Section -->
-<section class="hero-section">
+<section class="gradient-hero">
     <div class="container">
         <div class="row align-items-center">
             <div class="col-lg-8">
-                <h1 class="fade-in">Find Your Dream Job</h1>
-                <p class="fade-in">Discover thousands of job opportunities from top companies worldwide</p>
+                <h1 class="fade-in fw-bold mb-3">Find Your Dream Job</h1>
+                <p class="fade-in mb-0 fs-5 opacity-75">Discover thousands of job opportunities from top companies worldwide</p>
             </div>
             <div class="col-lg-4 text-center">
-                <i class="fas fa-search fa-5x opacity-50"></i>
+                <i class="fas fa-search fa-5x opacity-25"></i>
             </div>
         </div>
     </div>
@@ -24,13 +24,25 @@
     <div class="container">
         <form method="GET" action="{% url 'job_lists' %}" class="search-form">
             <div class="row g-3">
-                <div class="col-md-8">
-                    <input type="text" class="form-control" name="q" placeholder="Search by job title, company, or location" value="{{ query }}">
+                <div class="col-md-6">
+                    <input type="text" class="form-control" name="q" placeholder="Search by job title" value="{{ query }}">
                 </div>
-                <div class="col-md-4">
-                    <button type="submit" class="btn btn-primary w-100">
-                        <i class="fas fa-search me-1"></i>Search
+                <div class="col-md-6">
+                    <input type="text" class="form-control" name="company" placeholder="Filter by company" value="{{ company }}">
+                </div>
+                <div class="col-md-6">
+                    <input type="number" class="form-control" name="min_salary" placeholder="Minimum salary" value="{{ min_salary }}">
+                </div>
+                <div class="col-md-6">
+                    <input type="text" class="form-control" name="keyword" placeholder="Search by keyword" value="{{ keyword }}">
+                </div>
+                <div class="col-12">
+                    <button type="submit" class="btn btn-primary me-2">
+                        <i class="fas fa-search me-1"></i>Search & Filter
                     </button>
+                    <a href="{% url 'job_lists' %}" class="btn btn-outline-secondary">
+                        <i class="fas fa-times me-1"></i>Clear
+                    </a>
                 </div>
             </div>
         </form>
